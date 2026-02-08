@@ -111,14 +111,149 @@ function AnimBarChart({ data, title, started, legend }) {
   );
 }
 
+/* ---- Gold ore particle system for hero ---- */
+function GoldParticles() {
+  const canvasRef = useRef(null);
+  const particles = useRef([]);
+  const animId = useRef(null);
+  const dims = useRef({ w: 0, h: 0 });
+
+  useEffect(() => {
+    const canvas = canvasRef.current;
+    if (!canvas) return;
+    const ctx = canvas.getContext("2d");
+    const dpr = window.devicePixelRatio || 1;
+
+    const resize = () => {
+      const rect = canvas.parentElement.getBoundingClientRect();
+      dims.current = { w: rect.width, h: rect.height };
+      canvas.width = rect.width * dpr;
+      canvas.height = rect.height * dpr;
+      canvas.style.width = rect.width + "px";
+      canvas.style.height = rect.height + "px";
+      ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+    };
+    resize();
+    window.addEventListener("resize", resize);
+
+    // Create particles — mix of tiny dust and larger ore fragments
+    const count = 90;
+    particles.current = Array.from({ length: count }, (_, i) => {
+      const isLarge = i < 12;
+      const isMedium = i >= 12 && i < 30;
+      return {
+        x: Math.random() * dims.current.w,
+        y: Math.random() * dims.current.h,
+        size: isLarge ? 2.5 + Math.random() * 3 : isMedium ? 1.2 + Math.random() * 1.8 : 0.5 + Math.random() * 1.2,
+        speedY: -(0.08 + Math.random() * 0.25),
+        speedX: (Math.random() - 0.5) * 0.15,
+        drift: Math.random() * Math.PI * 2,
+        driftSpeed: 0.003 + Math.random() * 0.008,
+        opacity: isLarge ? 0.5 + Math.random() * 0.4 : 0.15 + Math.random() * 0.35,
+        shimmerSpeed: 0.01 + Math.random() * 0.025,
+        shimmerPhase: Math.random() * Math.PI * 2,
+        // Gold color variation: from warm gold to pale champagne
+        hue: 38 + Math.random() * 12,
+        sat: 55 + Math.random() * 30,
+        light: isLarge ? 62 + Math.random() * 15 : 55 + Math.random() * 20,
+        facets: isLarge ? Math.floor(3 + Math.random() * 4) : 0,
+        rotation: Math.random() * Math.PI * 2,
+        rotSpeed: (Math.random() - 0.5) * 0.005,
+      };
+    });
+
+    let t = 0;
+    const draw = () => {
+      t++;
+      const { w, h } = dims.current;
+      ctx.clearRect(0, 0, w, h);
+
+      particles.current.forEach(p => {
+        // Update position
+        p.drift += p.driftSpeed;
+        p.x += p.speedX + Math.sin(p.drift) * 0.2;
+        p.y += p.speedY;
+        p.rotation += p.rotSpeed;
+        p.shimmerPhase += p.shimmerSpeed;
+
+        // Wrap around
+        if (p.y < -10) { p.y = h + 10; p.x = Math.random() * w; }
+        if (p.x < -10) p.x = w + 10;
+        if (p.x > w + 10) p.x = -10;
+
+        // Shimmer
+        const shimmer = 0.5 + 0.5 * Math.sin(p.shimmerPhase);
+        const alpha = p.opacity * (0.4 + 0.6 * shimmer);
+
+        if (p.facets > 0) {
+          // Large ore fragments — irregular polygon with glow
+          ctx.save();
+          ctx.translate(p.x, p.y);
+          ctx.rotate(p.rotation);
+
+          // Glow
+          ctx.shadowColor = `hsla(${p.hue}, ${p.sat}%, ${p.light + 10}%, ${alpha * 0.6})`;
+          ctx.shadowBlur = p.size * 3;
+
+          ctx.beginPath();
+          for (let f = 0; f < p.facets; f++) {
+            const angle = (f / p.facets) * Math.PI * 2;
+            const r = p.size * (0.7 + 0.3 * Math.sin(angle * 2.5 + p.shimmerPhase));
+            const fx = Math.cos(angle) * r;
+            const fy = Math.sin(angle) * r;
+            f === 0 ? ctx.moveTo(fx, fy) : ctx.lineTo(fx, fy);
+          }
+          ctx.closePath();
+          ctx.fillStyle = `hsla(${p.hue}, ${p.sat}%, ${p.light}%, ${alpha})`;
+          ctx.fill();
+
+          // Bright facet highlight
+          ctx.shadowBlur = 0;
+          ctx.beginPath();
+          const ha = p.rotation * 2;
+          ctx.arc(Math.cos(ha) * p.size * 0.3, Math.sin(ha) * p.size * 0.3, p.size * 0.25, 0, Math.PI * 2);
+          ctx.fillStyle = `hsla(${p.hue}, 30%, 90%, ${alpha * shimmer * 0.8})`;
+          ctx.fill();
+
+          ctx.restore();
+        } else {
+          // Small dust particles — simple circles with soft glow
+          ctx.beginPath();
+          ctx.arc(p.x, p.y, p.size, 0, Math.PI * 2);
+          ctx.fillStyle = `hsla(${p.hue}, ${p.sat}%, ${p.light}%, ${alpha})`;
+          ctx.shadowColor = `hsla(${p.hue}, ${p.sat}%, ${p.light + 10}%, ${alpha * 0.4})`;
+          ctx.shadowBlur = p.size * 2;
+          ctx.fill();
+          ctx.shadowBlur = 0;
+        }
+      });
+
+      animId.current = requestAnimationFrame(draw);
+    };
+    draw();
+
+    return () => {
+      window.removeEventListener("resize", resize);
+      if (animId.current) cancelAnimationFrame(animId.current);
+    };
+  }, []);
+
+  return (
+    <canvas
+      ref={canvasRef}
+      style={{ position: "absolute", inset: 0, zIndex: 1, pointerEvents: "none" }}
+    />
+  );
+}
+
 const sections = [
   {
-    id: "regime-change", nav: "Regime Change", num: "01", sub: "The Backdrop",
-    title: "A New Regime for Investors",
-    body: "The S&P 500\u2019s implied 10-year forward CAGR now sits near 16% \u2014 double the 8% embedded for much of the prior decade. Digitalization, automation, and AI adoption are driving above-consensus growth across most major regions. But the market has repriced it. The productivity renaissance is real. The good news is in the price. The \u201CGlass Half Full\u201D thesis that guided KKR\u2019s view in recent years must evolve.",
+    id: "capital-markets", nav: "Capital Markets", num: "01", sub: "The Backdrop",
+    title: "The Repricing Has Happened",
+    body: "The S&P 500\u2019s implied 10-year forward CAGR now sits near 16% \u2014 double the 8% embedded for much of the prior decade. Credit spreads have compressed to levels not seen since 2021, narrowing the margin for error across fixed income. The productivity renaissance is real, but the market has already repriced it. The \u201CGlass Half Full\u201D thesis that guided KKR\u2019s view in recent years must evolve. The good news is in the price.",
     stat: "~16%",
-    statLabel: "S&P 500 implied 10-year forward CAGR vs. ~8% for prior decade \u2014 a measure of how much optimism is already embedded in equity prices",
-    fa: "The market has already priced in much of the good news \u2014 which is why how you\u2019re positioned matters more than ever right now.",
+    statLabel: "S&P 500 implied 10-year forward CAGR vs. ~8% for prior decade \u2014 equity and credit markets have repriced the optimism",
+    fa: "The market has already priced in much of the good news \u2014 equity valuations are stretched and credit spreads have compressed. How you\u2019re positioned matters more than ever right now.",
     chart: {
       title: "S&P 500 Implied 10-Year Forward CAGR",
       data: [
@@ -129,18 +264,18 @@ const sections = [
     },
   },
   {
-    id: "public-markets", nav: "Public Markets Context", num: "02", sub: "The Pressure",
-    title: "Public Markets Are Sending Mixed Signals",
-    body: "Most allocators are still running the 60/40 playbook in a world that has moved past it. Return dispersion across asset classes is compressing. Inflation is settling at a structurally higher baseline. And the three tailwinds propping up global growth \u2014 fiscal spending, AI capex, and household wealth \u2014 are dangerously correlated. They could weaken together. Meanwhile, 2021-vintage credit stress is beginning to surface. A B is an A in this environment, but a C could be an F.",
+    id: "portfolios", nav: "Portfolios", num: "02", sub: "The Tension",
+    title: "But Portfolios Haven\u2019t",
+    body: "Most allocators are still running the 60/40 playbook in a world that has moved past it. Return dispersion across asset classes is compressing. Inflation is settling at a structurally higher baseline. And the three tailwinds propping up global growth \u2014 fiscal spending, AI capex, and household wealth \u2014 are dangerously correlated. They could weaken together. Meanwhile, 2021-vintage credit stress is surfacing. A B is an A in this environment, but a C could be an F.",
     stat: "60/40",
     statLabel: "The legacy allocation model under pressure as return dispersion compresses and correlated risks emerge",
     fa: "The traditional portfolio mix was built for a different environment \u2014 one with lower inflation, wider return dispersion, and less correlated risks.",
     chart: null,
   },
   {
-    id: "portfolio-implications", nav: "Portfolio Implications", num: "03", sub: "The Thesis",
+    id: "upgrade-window", nav: "Upgrade Window", num: "03", sub: "The Thesis",
     title: "The Upgrade Window Is Open",
-    body: "Here is the underappreciated fact: the cost to raise portfolio quality has fallen to near-record lows. The premium for owning high-quality global equities has compressed to just 17% above the broad market. Credit spread differentials tell the same story. In most cycles, upgrading resilience, capital efficiency, and counterparty quality requires paying a meaningful premium. Today, it costs almost nothing. That window rarely stays open for long.",
+    body: "The answer is not retreat but upgrade. The cost to raise portfolio quality has fallen to near-record lows \u2014 the premium for owning high-quality global equities has compressed to just 17%. Credit spread differentials tell the same story. This is a rare window where upgrading resilience, capital efficiency, and counterparty quality costs almost nothing. Stay invested. Get better.",
     stat: "17%",
     statLabel: "Quality premium (MSCI Quality vs. ACWI) \u2014 near historic lows, meaning upgrading portfolio quality is unusually inexpensive",
     fa: "There\u2019s a window right now where upgrading to higher-quality holdings costs almost nothing in terms of premium \u2014 that\u2019s unusual, and it won\u2019t last forever.",
@@ -154,8 +289,8 @@ const sections = [
     },
   },
   {
-    id: "global-shifts", nav: "Global Shifts", num: "04", sub: "The Conviction Themes",
-    title: "Where the Structural Alpha Lives",
+    id: "alpha-emerging", nav: "Alpha Emerging", num: "04", sub: "The Conviction Themes",
+    title: "Alpha Is Emerging",
     body: "Operational improvement is delivering historic margin expansion \u2014 particularly in businesses transitioning from capital-heavy to capital-light models. International earnings inflections in Europe, Japan, and Emerging Markets are running above trend for the first time in years, creating the broadest opportunity set for geographic diversification since the post-GFC era. And national security is no longer just a policy concern \u2014 it is redefining where capital flows across supply chains, energy, data, and critical infrastructure.",
     stat: "3 of 4",
     statLabel: "Major regions where KKR forecasts above-consensus GDP growth in 2026",
@@ -176,9 +311,9 @@ const sections = [
     ],
   },
   {
-    id: "new-allocation", nav: "New Allocation Model", num: "05", sub: "The Action",
+    id: "high-grade", nav: "High Grade", num: "05", sub: "The Action",
     title: "High Grade Your Portfolio",
-    body: "Shift from the traditional allocation model to a diversified framework anchored by Private Equity, Real Assets, and Private Credit \u2014 the asset classes with the most compelling medium-term return potential. Own less index. Own more structuring. The portfolio that outperforms in this regime is not the one with the best market call. It is the one built to compound through governance, active ownership, and the ability to make its own luck.",
+    body: "Shift from 60/40 to a framework that effectively leverages Private Equity, Real Assets, and Private Credit \u2014 the asset classes with the most compelling medium-term return potential. Own less index. Own more structuring. The portfolio that outperforms in this regime is not the one with the best market call \u2014 it is the one built to compound through governance, active ownership, and the ability to make its own luck.",
     stat: "High Grade",
     statLabel: "The action: upgrade quality, add structuring, compress risk \u2014 implemented through a 40/30/30 allocation framework",
     fa: "We believe adding meaningful private markets exposure can help bridge the gap between your return targets and what public markets are likely to deliver over the next five years.",
@@ -430,19 +565,19 @@ export default function KKROutlook() {
       {tab === "outlook" && (<>
         {/* HERO */}
         <section style={{ minHeight: "92vh", display: "flex", flexDirection: "column", justifyContent: "center", background: `linear-gradient(165deg, ${C.purpleDark} 0%, ${C.purple} 45%, ${C.purpleLight} 100%)`, position: "relative", overflow: "hidden" }}>
-          <div style={{ position: "absolute", inset: 0, opacity: 0.03, backgroundImage: "linear-gradient(rgba(255,255,255,0.5) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,0.5) 1px, transparent 1px)", backgroundSize: "60px 60px" }} />
-          <div style={{ position: "absolute", left: 0, top: 0, bottom: 0, width: 4, background: `linear-gradient(180deg, transparent, ${C.gold}, transparent)` }} />
-          <div style={{ maxWidth: 860, margin: "0 auto", padding: "80px 40px 56px", position: "relative", zIndex: 1 }}>
+          <GoldParticles />
+          <div style={{ position: "absolute", left: 0, top: 0, bottom: 0, width: 4, background: `linear-gradient(180deg, transparent, ${C.gold}, transparent)`, zIndex: 2 }} />
+          <div style={{ maxWidth: 860, margin: "0 auto", padding: "80px 40px 56px", position: "relative", zIndex: 3 }}>
             <div style={{ fontSize: 12, fontWeight: 500, letterSpacing: 4, color: C.gold, textTransform: "uppercase", marginBottom: 40 }}>{"Outlook for 2026 \u2014 Henry H. McVey"}</div>
             <h1 style={{ fontFamily: display, fontSize: "clamp(32px, 5vw, 58px)", fontWeight: 700, color: "rgba(220,200,230,0.5)", lineHeight: 1.15, margin: "0 0 8px" }}>The productivity miracle is real.</h1>
             <h1 style={{ fontFamily: display, fontSize: "clamp(32px, 5vw, 58px)", fontWeight: 700, color: "#fff", lineHeight: 1.15, margin: "0 0 16px" }}>{"It\u2019s also priced in."}</h1>
             <p style={{ fontFamily: display, fontSize: "clamp(17px, 2.2vw, 25px)", color: C.goldLight, fontStyle: "italic", fontWeight: 300, margin: "24px 0 0", lineHeight: 1.4, maxWidth: 520 }}>The discipline to upgrade is now the edge.</p>
             <div style={{ margin: "44px 0 0", display: "flex", gap: 12 }}>
-              <button onClick={(e) => scrollTo(e, "regime-change")} style={{ background: C.gold, color: C.purpleDark, border: "none", padding: "13px 28px", fontSize: 14, fontWeight: 600, letterSpacing: 0.5, cursor: "pointer", fontFamily: sans }} onMouseEnter={e => e.target.style.background = C.goldLight} onMouseLeave={e => e.target.style.background = C.gold}>Read the Outlook</button>
+              <button onClick={(e) => scrollTo(e, "capital-markets")} style={{ background: C.gold, color: C.purpleDark, border: "none", padding: "13px 28px", fontSize: 14, fontWeight: 600, letterSpacing: 0.5, cursor: "pointer", fontFamily: sans }} onMouseEnter={e => e.target.style.background = C.goldLight} onMouseLeave={e => e.target.style.background = C.gold}>Read the Outlook</button>
               <button style={{ background: "transparent", color: "rgba(255,255,255,0.8)", border: "1px solid rgba(255,255,255,0.25)", padding: "13px 28px", fontSize: 14, fontWeight: 500, cursor: "pointer", fontFamily: sans }} onMouseEnter={e => { e.target.style.borderColor = "rgba(255,255,255,0.5)"; e.target.style.color = "#fff"; }} onMouseLeave={e => { e.target.style.borderColor = "rgba(255,255,255,0.25)"; e.target.style.color = "rgba(255,255,255,0.8)"; }}>Watch McVey (1:30)</button>
             </div>
           </div>
-          <div ref={hRef} style={{ maxWidth: 940, margin: "0 auto", padding: "0 40px 56px", display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: 1, position: "relative", zIndex: 1 }}>
+          <div ref={hRef} style={{ maxWidth: 940, margin: "0 auto", padding: "0 40px 56px", display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: 1, position: "relative", zIndex: 3 }}>
             {[
               { v: 16, sf: "%", lb: "S&P 500 Implied 10-yr Forward CAGR", sl: "vs. ~8% for prior decade \u2014 optimism is elevated" },
               { v: 17, sf: "%", lb: "Quality Premium (MSCI Quality vs. ACWI)", sl: "near historic lows \u2014 upgrading is inexpensive" },
@@ -464,10 +599,12 @@ export default function KKROutlook() {
           <div style={{ maxWidth: 780, margin: "0 auto" }}>
             <p style={{ fontSize: 13, lineHeight: 1.8, color: C.textSec, margin: 0 }}>
               <strong style={{ color: C.purple }}>How to navigate this experience:</strong>
-              {" The five sections below follow the arc of KKR\u2019s macro outlook \u2014 from the "}
-              <em>Regime Change</em>{" reshaping markets, through "}<em>Public Markets Context</em>{" and "}
-              <em>Portfolio Implications</em>{", to the "}<em>Global Shifts</em>{" creating opportunity and the "}
-              <em>New Allocation Model</em>{" that captures it. Use the navigation above to jump to any section. The "}
+              {" The five sections below follow the arc of KKR\u2019s macro outlook \u2014 from why "}
+              <em>The Repricing Has Happened</em>{", to why "}
+              <em>Portfolios Haven\u2019t</em>{" kept pace, through "}
+              <em>The Upgrade Window</em>{" that\u2019s now open, to where "}
+              <em>Alpha Is Emerging</em>{" and how to "}
+              <em>High Grade Your Portfolio</em>{" to capture it. Use the navigation above to jump to any section. The "}
               <em>Repurposing & Extensions</em>{" tab shows how this content adapts for social media, pitchbooks, and events. "}
               <em>Editorial Governance</em>{" outlines the workflow that produced it."}
             </p>
