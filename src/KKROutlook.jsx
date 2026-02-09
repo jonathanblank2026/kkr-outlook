@@ -1018,7 +1018,7 @@ export default function KKROutlook() {
               <strong style={{ color: C.purple }}>How to navigate this experience:</strong>
               {" The five sections below follow the arc of KKR\u2019s macro outlook \u2014 from why "}
               <em>The Repricing Has Happened</em>{", to why "}
-              <em>Portfolios Haven\u2019t</em>{" kept pace, through "}
+              <em>{"Portfolios Haven\u2019t"}</em>{" kept pace, through "}
               <em>The Upgrade Window</em>{" that\u2019s now open, to where "}
               <em>Alpha Is Emerging</em>{" and how to "}
               <em>High Grade Your Portfolio</em>{" to capture it. Use the navigation above to jump to any section. The "}
