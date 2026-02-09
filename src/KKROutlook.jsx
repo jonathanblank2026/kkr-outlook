@@ -904,8 +904,6 @@ export default function KKROutlook() {
   const [gateOpen, setGateOpen] = useState(false);
   const [seriesEmail, setSeriesEmail] = useState("");
   const [seriesSignedUp, setSeriesSignedUp] = useState(false);
-  const [seriesEmail, setSeriesEmail] = useState("");
-  const [seriesSignedUp, setSeriesSignedUp] = useState(false);
 
   useEffect(() => { const h = () => setSY(window.scrollY); window.addEventListener("scroll", h, { passive: true }); return () => window.removeEventListener("scroll", h); }, []);
   useEffect(() => { if (hIn) setHS(true); }, [hIn]);
@@ -1101,40 +1099,6 @@ export default function KKROutlook() {
                   <p style={{ fontSize: 12, lineHeight: 1.7, margin: 0, color: aTheme === i ? "rgba(255,255,255,0.7)" : C.textSec, flex: 1 }}>{th.d}</p>
                   {aTheme === i && <div style={{ marginTop: 12, fontSize: 11, color: C.goldLight, fontWeight: 500 }}>{"Explore theme \u2192"}</div>}
                 </div>
-              ))}
-            </div>
-          </div>
-        </section>
-
-        {/* SERIES SIGNUP */}
-        <section style={{ background: C.cream, borderTop: `1px solid ${C.divider}`, borderBottom: `1px solid ${C.divider}` }}>
-          <div style={{ maxWidth: 640, margin: "0 auto", padding: "56px 40px", textAlign: "center" }}>
-            <div style={{ fontSize: 12, fontWeight: 500, letterSpacing: 4, color: C.gold, textTransform: "uppercase", marginBottom: 14 }}>Weekly Series</div>
-            <h2 style={{ fontFamily: display, fontSize: 28, fontWeight: 700, color: C.purple, margin: "0 0 10px" }}>Go Deeper on Each Theme</h2>
-            <p style={{ fontSize: 14, color: C.textSec, lineHeight: 1.7, maxWidth: 480, margin: "0 auto 28px" }}>
-              Six weeks. Six conviction themes. Each installment unpacks one structural opportunity with data, context, and portfolio implications — delivered to your inbox every Tuesday.
-            </p>
-            {!seriesSignedUp ? (
-              <div style={{ display: "flex", gap: 8, justifyContent: "center", maxWidth: 420, margin: "0 auto" }}>
-                <input type="email" placeholder="Business email address" value={seriesEmail} onChange={e => setSeriesEmail(e.target.value)}
-                  style={{ flex: 1, padding: "11px 14px", border: `1px solid ${C.divider}`, fontSize: 14, fontFamily: sans, outline: "none", background: C.warmWhite }} />
-                <button onClick={() => setSeriesSignedUp(true)}
-                  style={{ padding: "11px 22px", background: C.purple, color: "#fff", border: "none", fontSize: 13, fontWeight: 600, fontFamily: sans, cursor: "pointer", whiteSpace: "nowrap" }}
-                  onMouseEnter={e => e.target.style.background = C.purpleLight} onMouseLeave={e => e.target.style.background = C.purple}>
-                  Subscribe
-                </button>
-              </div>
-            ) : (
-              <div style={{ padding: "14px 24px", background: C.goldMuted, border: `1px solid ${C.gold}`, display: "inline-block" }}>
-                <div style={{ fontSize: 14, fontWeight: 600, color: C.purple }}>{"\u2713"} You{"\u2019"}re in.</div>
-                <div style={{ fontSize: 12, color: C.textSec, marginTop: 4 }}>Week 1 — Corporate Reform — arrives next Tuesday.</div>
-              </div>
-            )}
-            <div style={{ marginTop: 20, display: "flex", justifyContent: "center", gap: 12, flexWrap: "wrap" }}>
-              {["Corporate Reform", "National Security", "Productivity", "Asia Tilt", "Services Economy", "Collateral Flows"].map((t, i) => (
-                <span key={i} style={{ fontSize: 10, fontWeight: 500, letterSpacing: 0.5, color: C.textMuted, padding: "4px 10px", border: `1px solid ${C.divider}`, background: C.warmWhite }}>
-                  Wk {i + 1}: {t}
-                </span>
               ))}
             </div>
           </div>
