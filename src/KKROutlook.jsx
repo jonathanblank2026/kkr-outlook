@@ -884,7 +884,7 @@ function HighGradeExplainer() {
         <div style={{ textAlign: "center", marginTop: 28 }}>
           <div style={{ display: "inline-block", padding: "10px 24px", border: "1px solid rgba(184,148,62,0.3)", background: "rgba(184,148,62,0.08)" }}>
             <span style={{ fontFamily: display, fontSize: 16, color: C.goldLight, fontStyle: "italic" }}>
-              {"\u201CThe discipline to upgrade is now the edge.\u201D"}
+              {"\u201Cthe discipline to upgrade is now the edge.\u201D"}
             </span>
           </div>
         </div>
@@ -902,6 +902,10 @@ export default function KKROutlook() {
   const [alloc, setAlloc] = useState("traditional");
   const [email, setEmail] = useState("");
   const [gateOpen, setGateOpen] = useState(false);
+  const [seriesEmail, setSeriesEmail] = useState("");
+  const [seriesSignedUp, setSeriesSignedUp] = useState(false);
+  const [seriesEmail, setSeriesEmail] = useState("");
+  const [seriesSignedUp, setSeriesSignedUp] = useState(false);
 
   useEffect(() => { const h = () => setSY(window.scrollY); window.addEventListener("scroll", h, { passive: true }); return () => window.removeEventListener("scroll", h); }, []);
   useEffect(() => { if (hIn) setHS(true); }, [hIn]);
@@ -986,7 +990,7 @@ export default function KKROutlook() {
             <div style={{ fontSize: 12, fontWeight: 500, letterSpacing: 4, color: C.gold, textTransform: "uppercase", marginBottom: 40 }}>{"Outlook for 2026 \u2014 Henry H. McVey"}</div>
             <h1 style={{ fontFamily: display, fontSize: "clamp(32px, 5vw, 58px)", fontWeight: 700, color: "rgba(220,200,230,0.5)", lineHeight: 1.15, margin: "0 0 8px" }}>The productivity miracle is real.</h1>
             <h1 style={{ fontFamily: display, fontSize: "clamp(32px, 5vw, 58px)", fontWeight: 700, color: "#fff", lineHeight: 1.15, margin: "0 0 16px" }}>{"It\u2019s also priced in."}</h1>
-            <p style={{ fontFamily: display, fontSize: "clamp(17px, 2.2vw, 25px)", color: C.goldLight, fontStyle: "italic", fontWeight: 300, margin: "24px 0 0", lineHeight: 1.4, maxWidth: 520 }}>The discipline to upgrade is now the edge.</p>
+            <p style={{ fontFamily: display, fontSize: "clamp(17px, 2.2vw, 25px)", color: C.goldLight, fontStyle: "italic", fontWeight: 300, margin: "24px 0 0", lineHeight: 1.4, maxWidth: 520 }}>The discipline to upgrade is now your clients' edge.</p>
             <div style={{ margin: "44px 0 0", display: "flex", gap: 12 }}>
               <button onClick={(e) => scrollTo(e, "capital-markets")} style={{ background: C.gold, color: C.purpleDark, border: "none", padding: "13px 28px", fontSize: 14, fontWeight: 600, letterSpacing: 0.5, cursor: "pointer", fontFamily: sans }} onMouseEnter={e => e.target.style.background = C.goldLight} onMouseLeave={e => e.target.style.background = C.gold}>Read the Outlook</button>
               <button style={{ background: "transparent", color: "rgba(255,255,255,0.8)", border: "1px solid rgba(255,255,255,0.25)", padding: "13px 28px", fontSize: 14, fontWeight: 500, cursor: "pointer", fontFamily: sans }} onMouseEnter={e => { e.target.style.borderColor = "rgba(255,255,255,0.5)"; e.target.style.color = "#fff"; }} onMouseLeave={e => { e.target.style.borderColor = "rgba(255,255,255,0.25)"; e.target.style.color = "rgba(255,255,255,0.8)"; }}>Watch McVey (1:30)</button>
@@ -1102,6 +1106,40 @@ export default function KKROutlook() {
           </div>
         </section>
 
+        {/* SERIES SIGNUP */}
+        <section style={{ background: C.cream, borderTop: `1px solid ${C.divider}`, borderBottom: `1px solid ${C.divider}` }}>
+          <div style={{ maxWidth: 640, margin: "0 auto", padding: "56px 40px", textAlign: "center" }}>
+            <div style={{ fontSize: 12, fontWeight: 500, letterSpacing: 4, color: C.gold, textTransform: "uppercase", marginBottom: 14 }}>Weekly Series</div>
+            <h2 style={{ fontFamily: display, fontSize: 28, fontWeight: 700, color: C.purple, margin: "0 0 10px" }}>Go Deeper on Each Theme</h2>
+            <p style={{ fontSize: 14, color: C.textSec, lineHeight: 1.7, maxWidth: 480, margin: "0 auto 28px" }}>
+              Six weeks. Six conviction themes. Each installment unpacks one structural opportunity with data, context, and portfolio implications — delivered to your inbox every Tuesday.
+            </p>
+            {!seriesSignedUp ? (
+              <div style={{ display: "flex", gap: 8, justifyContent: "center", maxWidth: 420, margin: "0 auto" }}>
+                <input type="email" placeholder="Business email address" value={seriesEmail} onChange={e => setSeriesEmail(e.target.value)}
+                  style={{ flex: 1, padding: "11px 14px", border: `1px solid ${C.divider}`, fontSize: 14, fontFamily: sans, outline: "none", background: C.warmWhite }} />
+                <button onClick={() => setSeriesSignedUp(true)}
+                  style={{ padding: "11px 22px", background: C.purple, color: "#fff", border: "none", fontSize: 13, fontWeight: 600, fontFamily: sans, cursor: "pointer", whiteSpace: "nowrap" }}
+                  onMouseEnter={e => e.target.style.background = C.purpleLight} onMouseLeave={e => e.target.style.background = C.purple}>
+                  Subscribe
+                </button>
+              </div>
+            ) : (
+              <div style={{ padding: "14px 24px", background: C.goldMuted, border: `1px solid ${C.gold}`, display: "inline-block" }}>
+                <div style={{ fontSize: 14, fontWeight: 600, color: C.purple }}>{"\u2713"} You{"\u2019"}re in.</div>
+                <div style={{ fontSize: 12, color: C.textSec, marginTop: 4 }}>Week 1 — Corporate Reform — arrives next Tuesday.</div>
+              </div>
+            )}
+            <div style={{ marginTop: 20, display: "flex", justifyContent: "center", gap: 12, flexWrap: "wrap" }}>
+              {["Corporate Reform", "National Security", "Productivity", "Asia Tilt", "Services Economy", "Collateral Flows"].map((t, i) => (
+                <span key={i} style={{ fontSize: 10, fontWeight: 500, letterSpacing: 0.5, color: C.textMuted, padding: "4px 10px", border: `1px solid ${C.divider}`, background: C.warmWhite }}>
+                  Wk {i + 1}: {t}
+                </span>
+              ))}
+            </div>
+          </div>
+        </section>
+
         {/* QUOTE */}
         <section style={{ background: C.purple, position: "relative", overflow: "hidden" }}>
           <QuoteOre />
@@ -1116,6 +1154,72 @@ export default function KKROutlook() {
               <div>
                 <div style={{ fontSize: 13, fontWeight: 600, color: "#fff" }}>Henry H. McVey</div>
                 <div style={{ fontSize: 11, color: "rgba(255,255,255,0.45)" }}>{"Head of Global Macro & Asset Allocation, CIO of KKR\u2019s Balance Sheet"}</div>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        {/* SERIES SIGNUP */}
+        <section style={{ background: C.warmWhite, borderTop: `1px solid ${C.divider}`, borderBottom: `1px solid ${C.divider}` }}>
+          <div style={{ maxWidth: 780, margin: "0 auto", padding: "68px 40px" }}>
+            <div style={{ display: "grid", gridTemplateColumns: "1fr 340px", gap: 44, alignItems: "start" }}>
+              <div>
+                <div style={{ fontSize: 12, fontWeight: 500, letterSpacing: 4, color: C.gold, textTransform: "uppercase", marginBottom: 14 }}>Conviction Theme Series</div>
+                <h2 style={{ fontFamily: display, fontSize: 28, fontWeight: 700, color: C.purple, margin: "0 0 10px", lineHeight: 1.3 }}>This Is Week One. There Are Twelve.</h2>
+                <p style={{ fontSize: 14, lineHeight: 1.8, color: C.textSec, margin: "0 0 24px" }}>
+                  {"The Outlook is the thesis. The series is the proof. Over the next twelve weeks, McVey and the GMAA team will publish deep-dive analyses on each structural conviction theme \u2014 one per week, each building on the High Grading framework."}
+                </p>
+                <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 8 }}>
+                  {[
+                    { wk: "Wk 1", t: "Corporate Reform", s: "Capital heavy \u2192 capital light" },
+                    { wk: "Wk 2", t: "National Security", s: "Security as inflation driver" },
+                    { wk: "Wk 3", t: "Productivity Renaissance", s: "AI, automation, the retraining gap" },
+                    { wk: "Wk 4", t: "Asia Tilt", s: "India, Japan, intra-Asia trade" },
+                    { wk: "Wk 5", t: "Services Economy", s: "The durable growth engine" },
+                    { wk: "Wk 6", t: "Collateral-Based Flows", s: "Private credit connective tissue" },
+                  ].map((item, i) => (
+                    <div key={i} style={{ display: "flex", gap: 10, padding: "8px 0", borderBottom: `1px solid ${C.divider}` }}>
+                      <span style={{ fontSize: 10, fontWeight: 600, color: C.gold, minWidth: 32, paddingTop: 1 }}>{item.wk}</span>
+                      <div>
+                        <div style={{ fontSize: 12, fontWeight: 600, color: C.purple, lineHeight: 1.3 }}>{item.t}</div>
+                        <div style={{ fontSize: 10, color: C.textMuted, lineHeight: 1.4 }}>{item.s}</div>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+                <div style={{ marginTop: 12, fontSize: 11, color: C.textMuted, fontStyle: "italic" }}>
+                  {"Weeks 7\u201312: Macro reconciliation series addressing the forecast-vs.-narrative tension, the China paradox, and the productivity sustainability question."}
+                </div>
+              </div>
+              <div style={{ background: C.card, border: `1px solid ${C.divider}`, padding: "28px 24px" }}>
+                {!seriesSignedUp ? (<>
+                  <div style={{ fontSize: 15, fontWeight: 600, color: C.purple, marginBottom: 6 }}>Get the full series</div>
+                  <p style={{ fontSize: 12, lineHeight: 1.6, color: C.textSec, margin: "0 0 16px" }}>
+                    Twelve weeks of conviction-theme analysis delivered to your inbox. One email per week. Unsubscribe anytime.
+                  </p>
+                  <input
+                    type="email" placeholder="Business email address" value={seriesEmail}
+                    onChange={e => setSeriesEmail(e.target.value)}
+                    style={{ width: "100%", padding: "10px 14px", border: `1px solid ${C.divider}`, fontSize: 14, fontFamily: sans, marginBottom: 10, outline: "none", boxSizing: "border-box", background: C.warmWhite }}
+                  />
+                  <button
+                    onClick={() => setSeriesSignedUp(true)}
+                    style={{ width: "100%", padding: "12px", background: C.purple, color: "#fff", border: "none", fontSize: 14, fontWeight: 600, fontFamily: sans, cursor: "pointer" }}
+                    onMouseEnter={e => e.target.style.background = C.purpleLight}
+                    onMouseLeave={e => e.target.style.background = C.purple}
+                  >Subscribe to the Series</button>
+                  <div style={{ fontSize: 10, color: C.textMuted, marginTop: 10, lineHeight: 1.5 }}>
+                    {"By subscribing, you\u2019ll receive weekly Outlook series emails from KKR Global Macro & Asset Allocation."}
+                  </div>
+                </>) : (
+                  <div style={{ textAlign: "center", padding: "16px 0" }}>
+                    <div style={{ fontSize: 34, marginBottom: 10, color: C.gold }}>{"\u2713"}</div>
+                    <div style={{ fontSize: 15, fontWeight: 600, color: C.purple, marginBottom: 6 }}>You're in</div>
+                    <p style={{ fontSize: 12, lineHeight: 1.6, color: C.textSec, margin: 0 }}>
+                      {"Week 1 \u2014 Corporate Reform \u2014 lands in your inbox next Monday. Welcome to the series."}
+                    </p>
+                  </div>
+                )}
               </div>
             </div>
           </div>
