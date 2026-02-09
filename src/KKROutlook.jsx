@@ -853,7 +853,7 @@ function HighGradeExplainer() {
   const [ref, vis] = useInView(0.2);
   const items = [
     { type: "upgrade", label: "Upgrade Quality", desc: "Shift from broad market exposure to high-quality, capital-efficient businesses" },
-    { type: "filter", label: "Compress Risk", desc: "Reduce concentration in correlated public market tailwinds" },
+    { type: "filter", label: "Reduce Correlation", desc: "Diversify beyond public markets where equities and bonds increasingly move together" },
     { type: "refine", label: "Add Structuring", desc: "Replace passive index weight with private markets alpha and asset-backed flows" },
     { type: "steady", label: "Stay Invested", desc: "Don\u2019t retreat to cash \u2014 the cost of upgrading is at historic lows" },
   ];
